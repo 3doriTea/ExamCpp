@@ -4,10 +4,13 @@
 class Enemy : public GameObject
 {
 public:
-	Enemy();
+	Enemy(const char* imageFileName_);
 	~Enemy();
 
-	void Update() override;
-	void Draw() override;
+	virtual void Update() override;
+	virtual void Draw() override;
+
+private:
+	int hImage_;
 };
 
