@@ -1,23 +1,29 @@
 #include "DxLib.h"
+#include "Input.h"
+#include "Player.h"
+#include "Screen.h"
 
 namespace
 {
-	// XGA SIZE
-	const int WIN_WIDTH{ 1024 };
-	const int WIN_HEIGHT{ 768 };
+	const int BACKGROUND_COLOR[3] { 0, 0, 0 };
 
-	const int USE_COLOR_BIT{ 32 };
+	LONGLONG crrTime;
+	LONGLONG prevTime;
 }
 
+float Screen::deltaTime = 0.0f;
 
 void DxInit()
 {
 	ChangeWindowMode(true);
 	SetWindowSizeChangeEnableFlag(false, false);
 	SetMainWindowText("TITLE");
-	SetGraphMode(WIN_WIDTH, WIN_HEIGHT, 32);
+	SetGraphMode(Screen::WIN_WIDTH, Screen::WIN_HEIGHT, 32);
 	SetWindowSizeExtendRate(1.0);
-	SetBackgroundColor(255, 250, 205);
+	SetBackgroundColor(
+		BACKGROUND_COLOR[0],
+		BACKGROUND_COLOR[1],
+		BACKGROUND_COLOR[2]);
 
 	// ＤＸライブラリ初期化処理
 	if (DxLib_Init() == -1)
@@ -37,8 +43,6 @@ void MyGame()
 	DrawFormatString(100, 150, GetColor(0, 0, 0), "%010d", timer);
 }
 
-
-
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -46,21 +50,36 @@ int WINAPI WinMain(
 	_In_ int nCmdShow)
 {
 	DxInit();
+	crrTime = GetNowHiPerformanceCount();
+	prevTime = GetNowHiPerformanceCount();
+
+	Player* player{ new Player };
 
 	while (true)
 	{
 		ClearDrawScreen();
+		Input::KeyStateUpdate();  // キーの更新をする
+
+		crrTime = GetNowHiPerformanceCount();
+		Screen::deltaTime = (crrTime - prevTime) * 0.0001f;
+
+		prevTime = crrTime;
 
 		//ここにやりたい処理を書く
-
+		player->Update();
+		player->Draw();
 
 		ScreenFlip();
 		WaitTimer(16);
+		
+
 		if (ProcessMessage() == -1)
 			break;
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1)
 			break;
 	}
+
+	delete player;
 
 	DxLib_End();
 	return 0;
