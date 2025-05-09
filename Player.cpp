@@ -13,23 +13,22 @@ namespace
 	
 	const float PLAYER_INIT_POSITION_X{ (Screen::WIN_WIDTH / 2) - (PLAYER_IMAGE_WIDTH / 2) };  // ‰æ–Ê‚Ì”¼•ª
 	const float PLAYER_INIT_POSITION_Y{ Screen::WIN_HEIGHT - PLAYER_IMAGE_HEIGHT - PLAYER_BOTTOM_MARGIN };
-	const float PLAYER_INIT_SPEED{ 10.0f };
+	const float PLAYER_INIT_SPEED{ 200.0f };
 }
 
 Player::Player() :
 	hImage_{ -1 },
 	x_{ 0.0f },
 	y_{ 0.0f },
-	speed_{ 0.0f }
+	speed_{ 100.0f }
 {
 	hImage_ = LoadGraph("Assets/tiny_ship5.png");
+	assert(hImage_ > -1  // ‰æ‘œ‚Í³‚µ‚­“Ç‚Ýž‚ß‚Ä‚¢‚é
+		&& "‰æ‘œ‚ª“Ç‚Ýž‚ß‚Ä‚¢‚È‚¢");
 
 	x_ = PLAYER_INIT_POSITION_X;
 	y_ = PLAYER_INIT_POSITION_Y;
 	speed_ = PLAYER_INIT_SPEED;
-
-	assert(hImage_ > -1  // ‰æ‘œ‚Í³‚µ‚­“Ç‚Ýž‚ß‚Ä‚¢‚é
-		&& "‰æ‘œ‚ª“Ç‚Ýž‚ß‚Ä‚¢‚È‚¢");
 }
 
 Player::~Player()

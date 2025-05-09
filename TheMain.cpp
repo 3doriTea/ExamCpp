@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Player.h"
 #include "Screen.h"
+#include "Enemy.h"
 
 namespace
 {
@@ -9,6 +10,11 @@ namespace
 
 	LONGLONG crrTime;
 	LONGLONG prevTime;
+
+	constexpr int ENEMY_COUNT{ 10 };
+
+	static const float ENEMY_SPAWAN_OFFSET { 100.0f };
+	static const float ENEMY_SPAWAN_DISTANCE { 50.0f };
 }
 
 float Screen::deltaTime = 0.0f;
@@ -53,7 +59,15 @@ int WINAPI WinMain(
 	crrTime = GetNowHiPerformanceCount();
 	prevTime = GetNowHiPerformanceCount();
 
-	Player* player{ new Player };
+	Enemy* enemys = { new Enemy[ENEMY_COUNT]{} };
+
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		enemys[i].SetPosition(ENEMY_SPAWAN_OFFSET + i * ENEMY_SPAWAN_DISTANCE, 100.0f);
+	}
+
+	Player* player{ new Player{} };
+	Enemy* enemy{ new Enemy{ "Assets/tiny_ship10.png", 100.0f, 100.0f, 100.0f } };
 
 	while (true)
 	{
@@ -61,13 +75,22 @@ int WINAPI WinMain(
 		Input::KeyStateUpdate();  // キーの更新をする
 
 		crrTime = GetNowHiPerformanceCount();
-		Screen::deltaTime = (crrTime - prevTime) * 0.0001f;
+		Screen::deltaTime = (crrTime - prevTime) * 0.0000001f;
 
 		prevTime = crrTime;
 
 		//ここにやりたい処理を書く
 		player->Update();
+		enemy->Update();
+
 		player->Draw();
+		enemy->Draw();
+
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			enemys[i].Update();
+			enemys[i].Draw();
+		}
 
 		ScreenFlip();
 		WaitTimer(16);
@@ -80,6 +103,14 @@ int WINAPI WinMain(
 	}
 
 	delete player;
+	delete enemy;
+
+	delete[] enemys;
+
+	/*for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+
+	}*/
 
 	DxLib_End();
 	return 0;
