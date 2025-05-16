@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include <cassert>
 #include <DxLib.h>
+#include <cmath>
+#include "Screen.h"
 
 namespace
 {
@@ -8,30 +10,43 @@ namespace
 	int IMAGE_HEIGHT{ 48 };
 }
 
-Enemy::Enemy() :
-	Enemy{ "Assets/tiny_ship10.png", 0.0f, 0.0f, 100.0f}
+Enemy::Enemy(const EnemyType _type, const int _id) :
+	Enemy{ _type, _id, 0.0f, 0.0f, 100.0f}
 {
 }
 
 Enemy::Enemy(
-	const char* _imageFileName,
+	const EnemyType _type,
+	const int _id,
 	const float _x,
 	const float _y,
 	const float _speed) :
 	GameObject{},
+	id_{ _id },
 	hImage_{ -1 },
-	x_{ 0.0f },
-	y_{ 0.0f },
-	speed_{ 0.0f },
-	isAlive_{ true }
+	x_{ _x },
+	y_{ _y },
+	INIT_X_{ _x },
+	INIT_Y_{ _y },
+	speed_{ _speed },
+	isAlive_{ true },
+	margin_{ 0 },
+	type_{ MAX },
+	offsetX_{ 0.0f }
 {
-	hImage_ = LoadGraph(_imageFileName);
+	static const char* ENEMY_IMAGE_FILES[]
+	{
+		"Assets/tiny_ship10.png",
+		"Assets/tiny_ship16.png",
+		"Assets/tiny_ship18.png",
+		"Assets/tiny_ship9.png",
+	};
+
+	hImage_ = LoadGraph(ENEMY_IMAGE_FILES[(int)_type]);
 	assert(hImage_ > -1  // ‰æ‘œ‚Í³‚µ‚­“Ç‚Ýž‚ß‚Ä‚¢‚é
 		&& "‰æ‘œ‚ª“Ç‚Ýž‚ß‚Ä‚¢‚È‚¢");
 
-	y_ = _x;
-	x_ = _y;
-	speed_ = _speed;
+	angle_ = (_id % 16) * ((DX_PI_F * 2.0f) / 16.0f);
 }
 
 Enemy::~Enemy()
@@ -41,14 +56,25 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
-	
+	angle_ += Screen::GetDeltaTime() * 20.0f;
+	if (angle_ >= DX_PI_F * 2.0f)
+	{
+		angle_ -= DX_PI_F * 2.0f;
+	}
+
+	y_ = INIT_Y_ + std::sinf(angle_) * 50.0f;
+	x_ = INIT_X_ + (std::sinf(angle_) * 60.0f) + offsetX_;
+
+	margin_ = static_cast<int>(std::sinf(angle_) * 3.0f);
+
+	offsetX_ += std::sinf(angle_ - (id_ % 16) * ((DX_PI_F * 2.0f) / 16.0f)) > 0.0f ? 5.0f : -5.0f;
 }
 
 void Enemy::Draw()
 {
 	DrawExtendGraph(
-		x_, y_,
-		x_ + IMAGE_WIDTH, y_ + IMAGE_HEIGHT,
+		x_ + margin_, y_ + margin_,
+		x_ + IMAGE_WIDTH - margin_, y_ + IMAGE_HEIGHT - margin_,
 		hImage_, TRUE);
 }
 

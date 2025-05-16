@@ -2,6 +2,7 @@
 
 GameObject::GameObject()
 {
+	AddGameObject(this);
 	// Empty
 }
 

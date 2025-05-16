@@ -137,6 +137,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="TheMain.cpp" />
     <ClCompile Include="Vector2Ref.cpp" />
   </ItemGroup>
@@ -146,6 +147,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Screen.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="Transfrom.h" />
     <ClInclude Include="Vector2Ref.h" />
   </ItemGroup>

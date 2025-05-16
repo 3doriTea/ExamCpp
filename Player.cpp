@@ -13,7 +13,7 @@ namespace
 	
 	const float PLAYER_INIT_POSITION_X{ (Screen::WIN_WIDTH / 2) - (PLAYER_IMAGE_WIDTH / 2) };  // ‰æ–Ê‚Ì”¼•ª
 	const float PLAYER_INIT_POSITION_Y{ Screen::WIN_HEIGHT - PLAYER_IMAGE_HEIGHT - PLAYER_BOTTOM_MARGIN };
-	const float PLAYER_INIT_SPEED{ 200.0f };
+	const float PLAYER_INIT_SPEED{ 400.0f };
 }
 
 Player::Player() :
@@ -51,8 +51,8 @@ void Player::Update()
 void Player::Draw()
 {
 	DrawExtendGraph(
-		x_, y_,
-		x_ + PLAYER_IMAGE_WIDTH, y_ + PLAYER_IMAGE_HEIGHT,
+		static_cast<int>(x_), static_cast<int>(y_),
+		static_cast<int>(x_) + PLAYER_IMAGE_WIDTH, static_cast<int>(y_) + PLAYER_IMAGE_HEIGHT,
 		hImage_, TRUE);
 
 	DrawLine(Screen::WIN_WIDTH / 2, 0, Screen::WIN_WIDTH / 2, Screen::WIN_HEIGHT, 0xff00ff, 2);

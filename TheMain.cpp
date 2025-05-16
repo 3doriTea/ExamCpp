@@ -1,8 +1,8 @@
 #include "DxLib.h"
 #include "Input.h"
-#include "Player.h"
 #include "Screen.h"
-#include "Enemy.h"
+#include "Stage.h"
+#include <vector>
 
 namespace
 {
@@ -16,6 +16,9 @@ namespace
 	static const float ENEMY_SPAWAN_OFFSET { 100.0f };
 	static const float ENEMY_SPAWAN_DISTANCE { 50.0f };
 }
+
+std::vector<GameObject*> pGameObjects;
+std::vector<GameObject*> pNewGameObjects;
 
 float Screen::deltaTime = 0.0f;
 
@@ -42,7 +45,6 @@ void DxInit()
 
 void MyGame()
 {
-
 	DrawFormatString(100, 100, GetColor(0, 0, 0), "ウィンドウのテスト");
 	static int timer = 0;
 	timer++;
@@ -59,15 +61,28 @@ int WINAPI WinMain(
 	crrTime = GetNowHiPerformanceCount();
 	prevTime = GetNowHiPerformanceCount();
 
-	Enemy* enemys = { new Enemy[ENEMY_COUNT]{} };
+	Stage stage{};
 
-	for (int i = 0; i < ENEMY_COUNT; i++)
+	#pragma region erase
+	//Enemy* enemys = { new Enemy[ENEMY_COUNT]{} };
+
+	//std::vector<Enemy> enemys(ENEMY_COUNT, {});
+
+	/*int i{ 0 };
+	for (auto&& enemy : enemys)
+	{
+		enemy.SetPosition(ENEMY_SPAWAN_OFFSET + i * ENEMY_SPAWAN_DISTANCE, 100.0f);
+		i++;
+	}*/
+
+	/*for (int i = 0; i < ENEMY_COUNT; i++)
 	{
 		enemys[i].SetPosition(ENEMY_SPAWAN_OFFSET + i * ENEMY_SPAWAN_DISTANCE, 100.0f);
-	}
+	}*/
 
-	Player* player{ new Player{} };
-	Enemy* enemy{ new Enemy{ "Assets/tiny_ship10.png", 100.0f, 100.0f, 100.0f } };
+	//Player* player{ new Player{} };
+	//Enemy* enemy{ new Enemy{ "Assets/tiny_ship10.png", 100.0f, 100.0f, 100.0f } };
+	#pragma endregion
 
 	while (true)
 	{
@@ -79,17 +94,41 @@ int WINAPI WinMain(
 
 		prevTime = crrTime;
 
+		#pragma region erase
 		//ここにやりたい処理を書く
-		player->Update();
-		enemy->Update();
+		//player->Update();
+		//enemy->Update();
 
-		player->Draw();
-		enemy->Draw();
+		//player->Draw();
+		//enemy->Draw();
 
-		for (int i = 0; i < ENEMY_COUNT; i++)
+		/*for (auto&& enemy : enemys)
 		{
-			enemys[i].Update();
-			enemys[i].Draw();
+			enemy.Update();
+			enemy.Draw();
+		}*/
+		#pragma endregion
+
+		if (pNewGameObjects.size() > 0)
+		{
+			for (auto&& pGameObject : pNewGameObjects)
+			{
+				pGameObjects.push_back(pGameObject);
+			}
+			pNewGameObjects.clear();
+		}
+
+		/*stage.Update();
+		stage.Draw();*/
+
+		for (auto&& pGameObject : pGameObjects)
+		{
+			pGameObject->Update();
+		}
+
+		for (auto&& pGameObject : pGameObjects)
+		{
+			pGameObject->Draw();
 		}
 
 		ScreenFlip();
@@ -102,15 +141,17 @@ int WINAPI WinMain(
 			break;
 	}
 
-	delete player;
-	delete enemy;
+	#pragma region erase
+	/*delete player;
+	delete enemy;*/
 
-	delete[] enemys;
+	//delete[] enemys;
 
 	/*for (int i = 0; i < ENEMY_COUNT; i++)
 	{
 
 	}*/
+	#pragma endregion
 
 	DxLib_End();
 	return 0;
