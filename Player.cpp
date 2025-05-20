@@ -3,6 +3,7 @@
 #include <cassert>
 #include "Input.h"
 #include "Screen.h"
+#include "Bullet.h"
 
 namespace
 {
@@ -45,6 +46,20 @@ void Player::Update()
 	if (Input::IsKeepKeyDown(KEY_INPUT_D))
 	{
 		x_ += speed_ * Screen::GetDeltaTime();
+	}
+
+	static float coolTimeLeft{ 0.0f };
+	if (coolTimeLeft <= 0.0f)
+	{
+		if (Input::IsKeepKeyDown(KEY_INPUT_SPACE))
+		{
+			coolTimeLeft += 0.01f;
+			new Bullet{ x_, y_ };
+		}
+	}
+	else
+	{
+		coolTimeLeft -= Screen::GetDeltaTime();
 	}
 }
 
