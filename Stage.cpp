@@ -1,7 +1,13 @@
 #include "Stage.h"
+#include <cmath>
+#include <DxLib.h>
+#include "Screen.h"
 
 #include "Player.h"
 #include "Enemy.h"
+#include "Bullet.h"
+#include "Effector.h"
+
 
 namespace
 {
@@ -13,6 +19,8 @@ namespace
 Stage::Stage() :
 	player_{ nullptr }
 {
+	hImage_ = LoadGraph("Assets/bg.png");
+
 	player_ = new Player{};
 	enemies_ = std::vector<Enemy*>(ENEMY_COUNT, nullptr);
 
@@ -40,8 +48,86 @@ Stage::~Stage()
 {
 }
 
+static bool IsHit(const Point _a, const Point _b, const float _hitDistance)
+{
+	return std::sqrtf(_a.x * _a.x + _b.x * _b.x) <= _hitDistance;
+}
+
+static bool IsHit(const Rect& _a, const Rect& _b)
+{
+	Point centerA{ _a.GetCenter() };
+	Point centerB{ _b.GetCenter() };
+
+	Point diff{ centerA.x - centerB.x, centerA.y - centerB.y };
+
+	if ((_a.width + _b.width) / 2 > std::fabsf(diff.x)
+		&& (_a.height + _b.height) / 2 > std::fabsf(diff.y))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void Stage::Update()
 {
+	//for (auto&& pEnemy : enemies_)
+	//{
+	//	Point enemyPosition = pEnemy->GetRect().GetCenter();
+	//	std::vector<Bullet*> pBullets = player_->GetAllBullets();
+	//	for (auto&& pBullet : pBullets)
+	//	{
+	//		Point bulletPosition = pBullet->GetRect().GetCenter();
+	//		if (IsHit(enemyPosition, bulletPosition, 100.0f))
+	//		{
+	//			pEnemy->SetIsAlive(false);
+	//			pBullet->SetIsFired(false);
+	//			break;
+	//		}
+	//	}
+	//}
+
+	//for (auto& pEnemy : enemies_)
+	//{
+	//	//Point enemyPosition = pEnemy->GetRect().GetCenter();
+	//	std::vector<Bullet*> pBullets = player_->GetAllBullets();
+	//	for (auto& pBullet : pBullets)
+	//	{
+	//		if (!pBullet->IsFire())
+	//		{
+	//			continue;
+	//		}
+	//		//Point bulletPosition = pBullet->GetRect().GetCenter();
+	//		if (IsHit(pEnemy->GetRect(), pBullet->GetRect()))
+	//		{
+	//			pEnemy->SetIsAlive(false);
+	//			pBullet->SetIsFired(false);
+	//			break;
+	//		}
+	//	}
+	//}
+
+	std::vector<Bullet*> pBullets = player_->GetAllBullets();
+	for (auto& pBullet : pBullets)
+	{
+		if (!pBullet->IsFire())
+		{
+			continue;
+		}
+
+		for (auto& pEnemy : enemies_)
+		{
+			//Point bulletPosition = pBullet->GetRect().GetCenter();
+			if (IsHit(pEnemy->GetRect(), pBullet->GetRect()))
+			{
+				pEnemy->SetIsAlive(false);
+				pBullet->SetIsFired(false);
+				new Effector{ {pBullet->GetRect().x, pBullet->GetRect().y} };
+				break;
+			}
+		}
+	}
+
 	/*player_->Update();
 	for (auto&& enemy : enemies_)
 	{
@@ -51,6 +137,10 @@ void Stage::Update()
 
 void Stage::Draw()
 {
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
+	DrawExtendGraph(0, 0, Screen::WIN_WIDTH, Screen::WIN_HEIGHT, hImage_, TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	/*player_->Draw();
 	for (auto&& enemy : enemies_)
 	{

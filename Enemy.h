@@ -30,6 +30,14 @@ public:
 	void SetId(int _id) { id_ = _id; }
 	int GettId() const { return id_; }
 
+	void GetPosition(float* _pX, float* _pY) const
+	{
+		*_pX = x_;
+		*_pY = y_;
+	}
+
+	Rect GetRect() const;
+
 private:
 	int id_;  // ¯•Êq
 	int hImage_;
@@ -42,9 +50,9 @@ private:
 	int margin_;  // —]”’
 	float offsetX_;
 
+	Point imageSize_;
+
 	EnemyType type_;
 
 	float angle_;
-
-	bool isAlive_;  // ¶‚«‚Ä‚¢‚é true / false
 };

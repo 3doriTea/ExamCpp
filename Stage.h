@@ -18,5 +18,6 @@ public:
 private:
 	Player* player_;
 	std::vector<Enemy*> enemies_;
+	int hImage_;
 };
 

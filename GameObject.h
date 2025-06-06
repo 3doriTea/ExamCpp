@@ -1,13 +1,26 @@
 #pragma once
 #include <vector>
+#include "Global.h"
 
 class GameObject
 {
 public:
-	GameObject();
+	GameObject(const bool _isAlive = true, const bool _isRegister = true);
 	virtual ~GameObject();
 	virtual void Update() = 0;
 	virtual void Draw() = 0;
+
+	inline void SetIsAlive(const bool _isAlive)
+	{
+		isAlive_ = _isAlive;
+	}
+	inline bool IsAlive() const
+	{
+		return isAlive_;
+	}
+
+protected:
+	bool isAlive_;  // ê∂Ç´ÇƒÇ¢ÇÈ true / false
 };
 
 extern std::vector<GameObject*> pGameObjects;

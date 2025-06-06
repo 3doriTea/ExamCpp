@@ -17,6 +17,8 @@ namespace
 	static const float ENEMY_SPAWAN_DISTANCE { 50.0f };
 }
 
+extern size_t totalGameObjectCount;
+
 std::vector<GameObject*> pGameObjects;
 std::vector<GameObject*> pNewGameObjects;
 
@@ -61,7 +63,7 @@ int WINAPI WinMain(
 	crrTime = GetNowHiPerformanceCount();
 	prevTime = GetNowHiPerformanceCount();
 
-	Stage stage{};
+	Stage* stage{ new Stage{} };
 
 	#pragma region erase
 	//Enemy* enemys = { new Enemy[ENEMY_COUNT]{} };
@@ -90,7 +92,7 @@ int WINAPI WinMain(
 		Input::KeyStateUpdate();  // キーの更新をする
 
 		crrTime = GetNowHiPerformanceCount();
-		Screen::deltaTime = (crrTime - prevTime) * 0.0000001f;
+		Screen::deltaTime = (crrTime - prevTime) * 0.000001f;
 
 		prevTime = crrTime;
 
@@ -130,6 +132,21 @@ int WINAPI WinMain(
 		{
 			pGameObject->Draw();
 		}
+
+		for (auto itr = pGameObjects.begin(); itr != pGameObjects.end();)
+		{
+			if ((*itr)->IsAlive() == false)
+			{
+				delete (*itr);
+				itr = pGameObjects.erase(itr);
+			}
+			else
+			{
+				itr++;
+			}
+		}
+
+		//printfDx("%d\n", totalGameObjectCount);
 
 		ScreenFlip();
 		WaitTimer(16);

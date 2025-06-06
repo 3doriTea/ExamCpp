@@ -29,10 +29,10 @@ Enemy::Enemy(
 	INIT_X_{ _x },
 	INIT_Y_{ _y },
 	speed_{ _speed },
-	isAlive_{ true },
 	margin_{ 0 },
 	type_{ MAX },
-	offsetX_{ 0.0f }
+	offsetX_{ 0.0f },
+	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) }
 {
 	static const char* ENEMY_IMAGE_FILES[]
 	{
@@ -56,7 +56,7 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
-	angle_ += Screen::GetDeltaTime() * 20.0f;
+	angle_ += Screen::GetDeltaTime() * 2.0f;
 	if (angle_ >= DX_PI_F * 2.0f)
 	{
 		angle_ -= DX_PI_F * 2.0f;
@@ -72,9 +72,13 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
-	DrawExtendGraph(
+	/*DrawExtendGraphF(
 		x_ + margin_, y_ + margin_,
 		x_ + IMAGE_WIDTH - margin_, y_ + IMAGE_HEIGHT - margin_,
+		hImage_, TRUE);*/
+	DrawExtendGraphF(
+		x_, y_,
+		x_ + IMAGE_WIDTH, y_ + IMAGE_HEIGHT,
 		hImage_, TRUE);
 }
 
@@ -82,4 +86,9 @@ void Enemy::SetPosition(const float _x, const float _y)
 {
 	x_ = _x;
 	y_ = _y;
+}
+
+Rect Enemy::GetRect() const
+{
+	return { x_, y_, (float)IMAGE_WIDTH, (float)IMAGE_HEIGHT };
 }
