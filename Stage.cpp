@@ -2,6 +2,7 @@
 #include <cmath>
 #include <DxLib.h>
 #include "Screen.h"
+#include <cassert>
 
 #include "Player.h"
 #include "Enemy.h"
@@ -25,6 +26,9 @@ Stage::Stage() :
 	toOverTimeLeft_{ TO_OVER_TIME_SEC }
 {
 	hImage_ = LoadGraph("Assets/bg.png");
+	assert(hImage_ >= 0
+		&& "”wŒi‰æ‘œ‚Ì“Ç‚İ‚İ‚É¸”s @Stage::Stage");
+
 
 	player_ = new Player{};
 	enemies_ = std::vector<Enemy*>(ENEMY_COUNT, nullptr);
@@ -88,6 +92,7 @@ void Stage::Update()
 		toOverTimeLeft_ -= Screen::GetDeltaTime();
 		if (toOverTimeLeft_ <= 0)
 		{
+			Enemy::Reset();
 			SceneChange(SceneType::Over);
 		}
 		return;
@@ -118,12 +123,6 @@ void Stage::Update()
 			}
 		}
 	}
-
-	/*player_->Update();
-	for (auto&& enemy : enemies_)
-	{
-		enemy->Update();
-	}*/
 }
 
 void Stage::Draw()

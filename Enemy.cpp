@@ -38,7 +38,8 @@ Enemy::Enemy(
 	offsetY_{ 0.0f },
 	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) },
 	angle2_{ 0.0f },
-	shotCoolTime_{ 0 }
+	shotCoolTime_{ 0 },
+	parentId_{ 0 }
 {
 	static const char* ENEMY_IMAGE_FILES[]
 	{

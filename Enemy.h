@@ -52,6 +52,7 @@ public:
 private:
 	int id_;  // Ž¯•ÊŽq
 	int hImage_;
+	int parentId_;
 
 	const float INIT_X_;
 	const float INIT_Y_;
