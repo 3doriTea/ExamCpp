@@ -3,6 +3,7 @@
 #include <DxLib.h>
 #include <cmath>
 #include "Screen.h"
+#include "Easings.h"
 
 namespace
 {
@@ -32,7 +33,9 @@ Enemy::Enemy(
 	margin_{ 0 },
 	type_{ MAX },
 	offsetX_{ 0.0f },
-	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) }
+	offsetY_{ 0.0f },
+	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) },
+	angle2_{ 0.0f }
 {
 	static const char* ENEMY_IMAGE_FILES[]
 	{
@@ -56,18 +59,25 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
+	//return;
 	angle_ += Screen::GetDeltaTime() * 2.0f;
 	if (angle_ >= DX_PI_F * 2.0f)
 	{
 		angle_ -= DX_PI_F * 2.0f;
 	}
 
-	y_ = INIT_Y_ + std::sinf(angle_) * 50.0f;
+	y_ = INIT_Y_ + std::sinf(angle_) * 50.0f + offsetY_;
 	x_ = INIT_X_ + (std::sinf(angle_) * 60.0f) + offsetX_;
 
 	margin_ = static_cast<int>(std::sinf(angle_) * 3.0f);
 
-	offsetX_ += std::sinf(angle_ - (id_ % 16) * ((DX_PI_F * 2.0f) / 16.0f)) > 0.0f ? 5.0f : -5.0f;
+	offsetX_ += Ease::OutElastic(std::fmodf(angle_, DX_PI_F) / DX_PI_F) *
+	(std::sinf(angle_ - (id_ % 16) * ((DX_PI_F * 2.0f) / 16.0f)) > 0.0f
+		? 4.0f
+		: -4.0f);
+	float downMove{ std::sinf(angle_) };
+	downMove *= downMove < 0 ? 0.01f : 0.1f;
+	offsetY_ += downMove;
 }
 
 void Enemy::Draw()

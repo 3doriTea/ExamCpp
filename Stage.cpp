@@ -11,9 +11,12 @@
 
 namespace
 {
+	static const int ENEMY_IMAGE_WIDTH{ 48 };
 	const int ENEMY_ROW_COUNT{ 7 };
 	const int ENEMY_COLUMN_COUNT{ 10 };
 	constexpr int ENEMY_COUNT{ ENEMY_COLUMN_COUNT * ENEMY_ROW_COUNT };
+	const int ENEMY_ALIGN_X{ 50 };
+	const int ENEMY_ALIGN_Y{ 50 };
 }
 
 Stage::Stage() :
@@ -24,6 +27,8 @@ Stage::Stage() :
 	player_ = new Player{};
 	enemies_ = std::vector<Enemy*>(ENEMY_COUNT, nullptr);
 
+	const int OFFSET_X = (Screen::WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COLUMN_COUNT)) / 2;
+	const int OFFSET_Y = 40.0f;
 	for (int i = 0; i < ENEMY_COUNT; i++)
 	{
 		int x = i / ENEMY_ROW_COUNT;
@@ -38,7 +43,11 @@ Stage::Stage() :
 
 		enemies_[i] = new Enemy
 		{
-			enemyType, i, 100.0f + x * 50.0f, 100.0f + y * 50.0f, 0.0f
+			enemyType,
+			i,
+			static_cast<float>(OFFSET_X + x * ENEMY_ALIGN_X),
+			static_cast<float>(OFFSET_Y + y * ENEMY_ALIGN_Y),
+			0.0f
 		};
 		//enemies_[i]->SetPosition(100 + x * 50, 100 + y * 50);
 	}
@@ -117,6 +126,11 @@ void Stage::Update()
 
 		for (auto& pEnemy : enemies_)
 		{
+			if (!pEnemy->IsAlive())
+			{
+				continue;
+			}
+
 			//Point bulletPosition = pBullet->GetRect().GetCenter();
 			if (IsHit(pEnemy->GetRect(), pBullet->GetRect()))
 			{
@@ -139,6 +153,8 @@ void Stage::Draw()
 {
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
 	DrawExtendGraph(0, 0, Screen::WIN_WIDTH, Screen::WIN_HEIGHT, hImage_, TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 50);
+	DrawBox(0, 0, Screen::WIN_WIDTH, Screen::WIN_HEIGHT, 0x000000, TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	/*player_->Draw();

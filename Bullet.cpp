@@ -32,7 +32,7 @@ Bullet::Bullet(const float _x, const float _y) :
 		&& "íeÇÃâÊëúÇÃì«Ç›çûÇ›Ç…é∏îsÇµÇΩÇÊ");
 
 	//GetGraphSize(hImage_, &imageSizeX_, &imageSizeY_);
-	x_ -= BULLET_IMAGE_WIDTH / 2 - 1;
+	//x_ -= BULLET_IMAGE_WIDTH / 2;
 	y_ -= BULLET_IMAGE_HEIGHT / 2;
 }
 
@@ -64,9 +64,9 @@ void Bullet::Draw()
 		return;
 	}
 
-	printfDx("x:%d, y:%d ::%d\n", (int)x_, (int)y_, isFired_);
+	//printfDx("x:%d, y:%d ::%d\n", (int)x_, (int)y_, isFired_);
 
-	DrawExtendGraphF(x_ , y_, x_ + imageSize_.x, y_ + imageSize_.y, hImage_, TRUE);
+	DrawExtendGraphF(x_ - +imageSize_.x / 2, y_, x_ + imageSize_.x / 2, y_ + imageSize_.y, hImage_, TRUE);
 }
 
 void Bullet::Fire(const float _x, const float _y)

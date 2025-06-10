@@ -88,7 +88,7 @@ int WINAPI WinMain(
 
 	while (true)
 	{
-		ClearDrawScreen();
+		//ClearDrawScreen();
 		Input::KeyStateUpdate();  // キーの更新をする
 
 		crrTime = GetNowHiPerformanceCount();

@@ -49,10 +49,12 @@ private:
 	float speed_;
 	int margin_;  // —]”’
 	float offsetX_;
+	float offsetY_;
 
 	Point imageSize_;
 
 	EnemyType type_;
 
 	float angle_;
+	float angle2_;
 };

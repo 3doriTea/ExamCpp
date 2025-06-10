@@ -1,6 +1,7 @@
 #include "Effector.h"
 #include <DxLib.h>
 #include "Screen.h"
+#include "Easings.h"
 
 
 namespace
@@ -8,9 +9,10 @@ namespace
 	static const int IMAGE_WIDTH{ 100 };
 	static const int IMAGE_HEIGHT{ 100 };
 	static const float EFFECT_TIME{ 1.0f };// 3.0f };  //”š”­ŽžŠÔ(•b)
-	static const int CELL_SIZE_X{ 144 / 3 };
-	static const int CELL_SIZE_Y{ 144 / 3 };
 	static const int CELL_COLUMN{ 3 };
+	static const int CELL_ROW{ 3 };
+	static const int CELL_SIZE_X{ 144 / CELL_COLUMN };
+	static const int CELL_SIZE_Y{ 144 / CELL_ROW };
 	static const char* EFFECT_IMAGE_FILE_NAME{ "Assets/explosion.png" };
 }
 
@@ -49,7 +51,7 @@ void Effector::Draw()
 		(int)radius_,
 		0xffffff);*/
 	
-	DrawCell(static_cast<int>(((EFFECT_TIME - timeLeft_) / EFFECT_TIME) * 9.0f));
+	DrawCell(static_cast<int>(Ease::InOutBounce((EFFECT_TIME - timeLeft_) / EFFECT_TIME) * (CELL_COLUMN * CELL_ROW)));
 	//DrawCell(0);
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);

@@ -53,20 +53,20 @@ void Player::Update()
 {
 	if (Input::IsKeepKeyDown(KEY_INPUT_A))
 	{
+		x_ -= speed_ * Screen::GetDeltaTime();
 		if (x_ < 0)
 		{
 			x_ = 0;
 		}
-		x_ -= speed_ * Screen::GetDeltaTime();
 	}
 
 	if (Input::IsKeepKeyDown(KEY_INPUT_D))
 	{
-		if (x_ > Screen::WIN_HEIGHT)
-		{
-			x_ = Screen::WIN_HEIGHT;
-		}
 		x_ += speed_ * Screen::GetDeltaTime();
+		if (x_ > Screen::WIN_WIDTH - PLAYER_IMAGE_WIDTH)
+		{
+			x_ = Screen::WIN_WIDTH - PLAYER_IMAGE_WIDTH;
+		}
 	}
 
 	static float coolTimeLeftSec{ 0.0f };
@@ -97,7 +97,7 @@ void Player::Draw()
 		static_cast<int>(x_) + PLAYER_IMAGE_WIDTH, static_cast<int>(y_) + PLAYER_IMAGE_HEIGHT,
 		hImage_, TRUE);
 
-	DrawLine(Screen::WIN_WIDTH / 2, 0, Screen::WIN_WIDTH / 2, Screen::WIN_HEIGHT, 0xff00ff, 2);
+	//DrawLine(Screen::WIN_WIDTH / 2, 0, Screen::WIN_WIDTH / 2, Screen::WIN_HEIGHT, 0xff00ff, 2);
 }
 
 Bullet* Player::GetActiveBullet()
