@@ -23,7 +23,6 @@ public:
 		return bullets_;
 	}
 
-
 private:
 	Bullet* GetActiveBullet();
 

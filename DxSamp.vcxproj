@@ -135,13 +135,17 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Effector.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Over.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StarGenerator.cpp" />
     <ClCompile Include="TheMain.cpp" />
+    <ClCompile Include="Title.cpp" />
     <ClCompile Include="Vector2Ref.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,13 +153,16 @@
     <ClInclude Include="Easings.h" />
     <ClInclude Include="Effector.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Over.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Stage.h" />
     <ClInclude Include="StarGenerator.h" />
+    <ClInclude Include="Title.h" />
     <ClInclude Include="Transfrom.h" />
     <ClInclude Include="Vector2Ref.h" />
   </ItemGroup>

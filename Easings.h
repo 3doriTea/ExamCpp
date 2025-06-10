@@ -4,7 +4,8 @@
 class Ease
 {
 public:
-	static inline float OutElastic(float x){
+	static inline float OutElastic(float x)
+	{
 		static const float PI{ std::acosf(-1) };
 		static const float c4 = (2.0f * PI) / 3.0f;
 

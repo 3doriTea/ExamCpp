@@ -17,10 +17,12 @@ namespace
 	constexpr int ENEMY_COUNT{ ENEMY_COLUMN_COUNT * ENEMY_ROW_COUNT };
 	const int ENEMY_ALIGN_X{ 50 };
 	const int ENEMY_ALIGN_Y{ 50 };
+	const float TO_OVER_TIME_SEC{ 1.5f };  // ゲームオーバーするまでに要する間
 }
 
 Stage::Stage() :
-	player_{ nullptr }
+	player_{ nullptr },
+	toOverTimeLeft_{ TO_OVER_TIME_SEC }
 {
 	hImage_ = LoadGraph("Assets/bg.png");
 
@@ -29,6 +31,7 @@ Stage::Stage() :
 
 	const int OFFSET_X = (Screen::WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COLUMN_COUNT)) / 2;
 	const int OFFSET_Y = 40.0f;
+	onEnemyCount_ = ENEMY_COUNT;
 	for (int i = 0; i < ENEMY_COUNT; i++)
 	{
 		int x = i / ENEMY_ROW_COUNT;
@@ -80,41 +83,15 @@ static bool IsHit(const Rect& _a, const Rect& _b)
 
 void Stage::Update()
 {
-	//for (auto&& pEnemy : enemies_)
-	//{
-	//	Point enemyPosition = pEnemy->GetRect().GetCenter();
-	//	std::vector<Bullet*> pBullets = player_->GetAllBullets();
-	//	for (auto&& pBullet : pBullets)
-	//	{
-	//		Point bulletPosition = pBullet->GetRect().GetCenter();
-	//		if (IsHit(enemyPosition, bulletPosition, 100.0f))
-	//		{
-	//			pEnemy->SetIsAlive(false);
-	//			pBullet->SetIsFired(false);
-	//			break;
-	//		}
-	//	}
-	//}
-
-	//for (auto& pEnemy : enemies_)
-	//{
-	//	//Point enemyPosition = pEnemy->GetRect().GetCenter();
-	//	std::vector<Bullet*> pBullets = player_->GetAllBullets();
-	//	for (auto& pBullet : pBullets)
-	//	{
-	//		if (!pBullet->IsFire())
-	//		{
-	//			continue;
-	//		}
-	//		//Point bulletPosition = pBullet->GetRect().GetCenter();
-	//		if (IsHit(pEnemy->GetRect(), pBullet->GetRect()))
-	//		{
-	//			pEnemy->SetIsAlive(false);
-	//			pBullet->SetIsFired(false);
-	//			break;
-	//		}
-	//	}
-	//}
+	if (onEnemyCount_ <= 0)
+	{
+		toOverTimeLeft_ -= Screen::GetDeltaTime();
+		if (toOverTimeLeft_ <= 0)
+		{
+			SceneChange(SceneType::Over);
+		}
+		return;
+	}
 
 	std::vector<Bullet*> pBullets = player_->GetAllBullets();
 	for (auto& pBullet : pBullets)
@@ -123,7 +100,6 @@ void Stage::Update()
 		{
 			continue;
 		}
-
 		for (auto& pEnemy : enemies_)
 		{
 			if (!pEnemy->IsAlive())
@@ -136,6 +112,7 @@ void Stage::Update()
 			{
 				pEnemy->SetIsAlive(false);
 				pBullet->SetIsFired(false);
+				onEnemyCount_--;
 				new Effector{ {pBullet->GetRect().x, pBullet->GetRect().y} };
 				break;
 			}

@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "EnemyBullet.h"
 
 class Enemy : public GameObject
 {
@@ -38,6 +39,16 @@ public:
 
 	Rect GetRect() const;
 
+	static void SetAvoidPoints(const std::vector<Point>& _points) { avoidPoints_ = _points; }
+
+	static std::vector<Point> avoidPoints_;
+	static EnemyBullet* GetActiveBullet();
+
+	static void Reset()
+	{
+		bullets_.clear();
+	};
+
 private:
 	int id_;  // Ž¯•ÊŽq
 	int hImage_;
@@ -50,6 +61,7 @@ private:
 	int margin_;  // —]”’
 	float offsetX_;
 	float offsetY_;
+	float shotCoolTime_;
 
 	Point imageSize_;
 
@@ -57,4 +69,5 @@ private:
 
 	float angle_;
 	float angle2_;
+	static std::vector<EnemyBullet*> bullets_;
 };

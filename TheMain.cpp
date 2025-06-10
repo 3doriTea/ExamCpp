@@ -2,6 +2,8 @@
 #include "Input.h"
 #include "Screen.h"
 #include "Stage.h"
+#include "Title.h"
+#include "Over.h"
 #include <vector>
 
 namespace
@@ -16,6 +18,9 @@ namespace
 	static const float ENEMY_SPAWAN_OFFSET { 100.0f };
 	static const float ENEMY_SPAWAN_DISTANCE { 50.0f };
 }
+
+SceneType currentScene;
+SceneType nextScene;
 
 extern size_t totalGameObjectCount;
 
@@ -53,6 +58,7 @@ void MyGame()
 	DrawFormatString(100, 150, GetColor(0, 0, 0), "%010d", timer);
 }
 
+
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -63,28 +69,7 @@ int WINAPI WinMain(
 	crrTime = GetNowHiPerformanceCount();
 	prevTime = GetNowHiPerformanceCount();
 
-	Stage* stage{ new Stage{} };
-
-	#pragma region erase
-	//Enemy* enemys = { new Enemy[ENEMY_COUNT]{} };
-
-	//std::vector<Enemy> enemys(ENEMY_COUNT, {});
-
-	/*int i{ 0 };
-	for (auto&& enemy : enemys)
-	{
-		enemy.SetPosition(ENEMY_SPAWAN_OFFSET + i * ENEMY_SPAWAN_DISTANCE, 100.0f);
-		i++;
-	}*/
-
-	/*for (int i = 0; i < ENEMY_COUNT; i++)
-	{
-		enemys[i].SetPosition(ENEMY_SPAWAN_OFFSET + i * ENEMY_SPAWAN_DISTANCE, 100.0f);
-	}*/
-
-	//Player* player{ new Player{} };
-	//Enemy* enemy{ new Enemy{ "Assets/tiny_ship10.png", 100.0f, 100.0f, 100.0f } };
-	#pragma endregion
+	currentScene = SceneType::None;
 
 	while (true)
 	{
@@ -96,21 +81,6 @@ int WINAPI WinMain(
 
 		prevTime = crrTime;
 
-		#pragma region erase
-		//‚±‚±‚É‚â‚è‚½‚¢ˆ—‚ð‘‚­
-		//player->Update();
-		//enemy->Update();
-
-		//player->Draw();
-		//enemy->Draw();
-
-		/*for (auto&& enemy : enemys)
-		{
-			enemy.Update();
-			enemy.Draw();
-		}*/
-		#pragma endregion
-
 		if (pNewGameObjects.size() > 0)
 		{
 			for (auto&& pGameObject : pNewGameObjects)
@@ -119,9 +89,6 @@ int WINAPI WinMain(
 			}
 			pNewGameObjects.clear();
 		}
-
-		/*stage.Update();
-		stage.Draw();*/
 
 		for (auto&& pGameObject : pGameObjects)
 		{
@@ -146,29 +113,40 @@ int WINAPI WinMain(
 			}
 		}
 
-		//printfDx("%d\n", totalGameObjectCount);
-
 		ScreenFlip();
 		WaitTimer(16);
-		
 
 		if (ProcessMessage() == -1)
 			break;
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1)
 			break;
+
+		if (nextScene != currentScene)
+		{
+			for (auto&& pGameObject : pGameObjects)
+			{
+				delete pGameObject;
+			}
+			pGameObjects.clear();
+			switch (nextScene)
+			{
+			case SceneType::Title:
+				new Title{};
+				break;
+			case SceneType::Play:
+			{
+				Stage* stage{ new Stage{} };
+			}
+			break;
+			case SceneType::Over:
+				new Over{};
+				break;
+			default:
+				break;
+			}
+			currentScene = nextScene;
+		}
 	}
-
-	#pragma region erase
-	/*delete player;
-	delete enemy;*/
-
-	//delete[] enemys;
-
-	/*for (int i = 0; i < ENEMY_COUNT; i++)
-	{
-
-	}*/
-	#pragma endregion
 
 	DxLib_End();
 	return 0;

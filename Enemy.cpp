@@ -9,6 +9,8 @@ namespace
 {
 	int IMAGE_WIDTH{ 48 };
 	int IMAGE_HEIGHT{ 48 };
+	static const float BULLET_COOL_TIME_SEC{ 0.1f };
+	static const int BULLET_COUNT{ 5 };  // íeÇÃêî
 }
 
 Enemy::Enemy(const EnemyType _type, const int _id) :
@@ -35,7 +37,8 @@ Enemy::Enemy(
 	offsetX_{ 0.0f },
 	offsetY_{ 0.0f },
 	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) },
-	angle2_{ 0.0f }
+	angle2_{ 0.0f },
+	shotCoolTime_{ 0 }
 {
 	static const char* ENEMY_IMAGE_FILES[]
 	{
@@ -50,6 +53,15 @@ Enemy::Enemy(
 		&& "âÊëúÇ™ì«Ç›çûÇﬂÇƒÇ¢Ç»Ç¢");
 
 	angle_ = (_id % 16) * ((DX_PI_F * 2.0f) / 16.0f);
+
+	if (bullets_.size() == 0)
+	{
+		bullets_.resize(BULLET_COUNT);
+		for (int i = 0; i < BULLET_COUNT; i++)
+		{
+			bullets_[i] = new EnemyBullet{};
+		}
+	}
 }
 
 Enemy::~Enemy()
@@ -78,6 +90,23 @@ void Enemy::Update()
 	float downMove{ std::sinf(angle_) };
 	downMove *= downMove < 0 ? 0.01f : 0.1f;
 	offsetY_ += downMove;
+
+	static int shotCurr{};
+	shotCoolTime_ -= Screen::GetDeltaTime();
+	if (shotCurr <= 0)
+	{
+		if (shotCoolTime_ <= 0)
+		{
+			shotCoolTime_ += BULLET_COOL_TIME_SEC;
+			shotCurr = GetRand(id_);
+			EnemyBullet* bullet = GetActiveBullet();
+			if (bullet != nullptr)
+			{
+				bullet->Fire(x_ + (IMAGE_WIDTH / 2) - 3, y_);
+			}
+		}
+	}
+	shotCurr--;
 }
 
 void Enemy::Draw()
@@ -102,3 +131,19 @@ Rect Enemy::GetRect() const
 {
 	return { x_, y_, (float)IMAGE_WIDTH, (float)IMAGE_HEIGHT };
 }
+
+EnemyBullet* Enemy::GetActiveBullet()
+{
+	for (int i = 0; i < BULLET_COUNT; i++)
+	{
+		if (bullets_[i]->IsFire() == false)
+		{
+			return bullets_[i];
+		}
+	}
+
+	return nullptr;
+}
+
+std::vector<Point> Enemy::avoidPoints_{};
+std::vector<EnemyBullet*> Enemy::bullets_{};

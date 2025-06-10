@@ -19,5 +19,7 @@ private:
 	Player* player_;
 	std::vector<Enemy*> enemies_;
 	int hImage_;
+	int onEnemyCount_;
+	float toOverTimeLeft_;
 };
 
