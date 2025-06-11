@@ -14,6 +14,11 @@ extern SceneType nextScene;
 
 void SceneChange(SceneType next);
 
+static inline float Hart(const float _x, const bool _sign)
+{
+	return (std::powf(_x, 2.0f / 3.0f) + (_sign ? -1 : 1) * std::sqrtf(1.0f - _x * _x));
+}
+
 struct Point
 {
 	float x;
@@ -22,6 +27,13 @@ struct Point
 	static inline float Distance(const Point _a, const Point _b)
 	{
 		return std::sqrtf((_a.x - _b.x) * (_a.x - _b.x) + (_a.y - _b.y) * (_a.y - _b.y));
+	}
+
+	Point& operator/=(const float _value)
+	{
+		x /= _value;
+		y /= _value;
+		return *this;
 	}
 };
 
@@ -37,3 +49,15 @@ struct Rect
 		return { x + width / 2, y + height / 2 };
 	}
 };
+
+static inline Point GetHartsPoint(const float _larp)
+{
+	float x = _larp * 2.0f - 1.0f;
+	float y = Hart(x, std::fmodf(_larp, 0.5f) > 0.25f);
+
+	return
+	{
+		x * Screen::WIN_WIDTH / (_larp > 0.5f ? -2 : 2) + Screen::WIN_WIDTH / 2,
+		y * Screen::WIN_WIDTH / -6 + Screen::WIN_HEIGHT / 2,
+	};
+}

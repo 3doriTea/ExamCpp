@@ -39,14 +39,35 @@ public:
 
 	Rect GetRect() const;
 
+	void MoveAt(const Point _position);
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="_id"></param>
+	/// <returns></returns>
+	static Enemy* GetAliveEnemy(const int _id);
+
 	static void SetAvoidPoints(const std::vector<Point>& _points) { avoidPoints_ = _points; }
 
 	static std::vector<Point> avoidPoints_;
 	static EnemyBullet* GetActiveBullet();
 
+	/// <summary>
+	/// 突撃部隊に参加してくれる勇気ある機体を募る
+	/// </summary>
+	/// <param name="_parentId">ついていく先</param>
+	/// <param name="_countMax">募集機体数</param>
+	/// <returns>募りに成功したか</returns>
+	static bool BringEnemyFrom(const int _parentId, const int _countMax);
+
+	/// <summary>
+	/// 敵の静的情報をリセット
+	/// </summary>
 	static void Reset()
 	{
 		bullets_.clear();
+		enemies_.clear();
 	};
 
 private:
@@ -68,7 +89,10 @@ private:
 
 	EnemyType type_;
 
+	static float groupTimeLeft_;
 	float angle_;
 	float angle2_;
+	static int groupRootId_;  // グルーブの一番親のid
+	static std::vector<Enemy*> enemies_;
 	static std::vector<EnemyBullet*> bullets_;
 };
