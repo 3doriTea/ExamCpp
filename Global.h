@@ -50,14 +50,4 @@ struct Rect
 	}
 };
 
-static inline Point GetHartsPoint(const float _larp)
-{
-	float x = _larp * 2.0f - 1.0f;
-	float y = Hart(x, std::fmodf(_larp, 0.5f) > 0.25f);
-
-	return
-	{
-		x * Screen::WIN_WIDTH / (_larp > 0.5f ? -2 : 2) + Screen::WIN_WIDTH / 2,
-		y * Screen::WIN_WIDTH / -6 + Screen::WIN_HEIGHT / 2,
-	};
-}
+Point GetHartsPoint(const float _larp);
