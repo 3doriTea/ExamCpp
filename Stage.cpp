@@ -98,6 +98,8 @@ void Stage::Update()
 		return;
 	}
 
+	Enemy::SetPlayerPoint(player_->GetRect().GetCenter());
+
 	std::vector<Bullet*> pBullets = player_->GetAllBullets();
 	for (auto& pBullet : pBullets)
 	{

@@ -49,6 +49,7 @@ public:
 	static Enemy* GetAliveEnemy(const int _id);
 
 	static void SetAvoidPoints(const std::vector<Point>& _points) { avoidPoints_ = _points; }
+	static void SetPlayerPoint(const Point _point);
 
 	static std::vector<Point> avoidPoints_;
 	static EnemyBullet* GetActiveBullet();
@@ -85,6 +86,8 @@ private:
 	float offsetY_;
 	float shotCoolTime_;
 
+	int dropPointX_;  // 降下攻撃のx座標
+
 	Point imageSize_;
 
 	EnemyType type_;
@@ -95,4 +98,7 @@ private:
 	static int groupRootId_;  // グルーブの一番親のid
 	static std::vector<Enemy*> enemies_;
 	static std::vector<EnemyBullet*> bullets_;
+	static Point targetPoint_;  // 狙う座標
+	static Point currPlayerPoint_;  // 今のプレイヤーの場所
+	static Point prevPlayerPoint_;  // 前のプレイヤーの場所
 };

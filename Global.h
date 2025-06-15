@@ -28,13 +28,35 @@ struct Point
 		return std::sqrtf((_a.x - _b.x) * (_a.x - _b.x) + (_a.y - _b.y) * (_a.y - _b.y));
 	}
 
-	Point& operator/=(const float _value)
+	inline Point& operator/=(const float _value)
 	{
 		x /= _value;
 		y /= _value;
 		return *this;
 	}
+	inline Point& operator+=(const Point _p)
+	{
+		x += _p.x;
+		y += _p.y;
+		return *this;
+	}
+	inline Point& operator-=(const Point _p)
+	{
+		x -= _p.x;
+		y -= _p.y;
+		return *this;
+	}
 };
+
+inline Point operator+(const Point _p1, const Point _p2)
+{
+	return Point{ _p1 } += _p2;
+}
+
+inline Point operator-(const Point _p1, const Point _p2)
+{
+	return Point{ _p1 } -= _p2;
+}
 
 struct Rect
 {

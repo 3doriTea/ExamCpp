@@ -13,7 +13,7 @@ namespace
 	static const float BULLET_COOL_TIME_SEC{ 0.1f };
 	static const int BULLET_COUNT{ 5 };  // 弾の数
 	static const int MAKE_GROUP_FRAME_INTERVAL{ 60 * 3 };
-	static const float GROUP_ANIM_TIME{ 2.0f };
+	static const float GROUP_ANIM_TIME{ 10.0f };
 }
 
 Enemy::Enemy(const EnemyType _type, const int _id) :
@@ -42,7 +42,8 @@ Enemy::Enemy(
 	imageSize_{ static_cast<float>(IMAGE_WIDTH), static_cast<float>(IMAGE_HEIGHT) },
 	angle2_{ 0.0f },
 	shotCoolTime_{ 0 },
-	parentId_{ -1 }
+	parentId_{ -1 },
+	dropPointX_{}
 {
 	// 安全のために
 	if (enemies_.size() <= id_)
@@ -86,6 +87,8 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
+	shotCoolTime_ -= Screen::GetDeltaTime();
+
 	// グルーブのリーダーの処理
 	if (groupRootId_ == id_)
 	{
@@ -96,9 +99,9 @@ void Enemy::Update()
 		float angle = DX_TWO_PI_F * (groupTimeLeft_ / GROUP_ANIM_TIME);
 		float value = std::cosf(angle);
 		
-		float x = value * (Screen::WIN_WIDTH / 2) + (Screen::WIN_WIDTH / 2);
-		float y = (Hart(value, false) / 2.5f + 1.0f) * (Screen::WIN_HEIGHT / 30) - 50;
-		MoveAt({ x, y });
+		/*float x = value * (Screen::WIN_WIDTH / 2) + (Screen::WIN_WIDTH / 2);
+		float y = (Hart(value, false) / 2.5f + 1.0f) * (Screen::WIN_HEIGHT / 30) - 50;*/
+		MoveAt(GetHartsPoint(value / 2.0f + 0.5f) += Point{ static_cast<float>(dropPointX_) - Screen::WIN_WIDTH / 2, 0 });
 
 		groupTimeLeft_ -= Screen::GetDeltaTime();
 		if (groupTimeLeft_ <= 0.0f)
@@ -123,6 +126,16 @@ void Enemy::Update()
 			return;
 		}
 		MoveAt({ static_cast<float>(pPearent->x_), static_cast<float>(pPearent->y_) });
+		if (shotCoolTime_ <= 0
+			&& GetRect().GetCenter().x - targetPoint_.x <= 3)
+		{
+			shotCoolTime_ += BULLET_COOL_TIME_SEC;  // 一度撃ったらクールタイム加算
+			EnemyBullet* bullet = GetActiveBullet();  // 今発射可能な弾を取得
+			if (bullet != nullptr)  // あれば撃つ
+			{
+				bullet->Fire(x_ + (IMAGE_WIDTH / 2) - 3, y_);
+			}
+		}
 		return;
 	}
 	// 普通の処理
@@ -149,7 +162,6 @@ void Enemy::Update()
 	// 爆弾回しゲームのような感じ
 	static int shotCurr{};  // 各生きている敵が疑似ランダムに撃つためのカウントダウンタイマもどき
 	static int toGroupCurr{ MAKE_GROUP_FRAME_INTERVAL };  // 同じくグループ作成のやつ
-	shotCoolTime_ -= Screen::GetDeltaTime();
 	if (shotCurr <= 0  // カウントダウンもどきが0以下に出くわした敵が発動
 		&& shotCoolTime_ <= 0)  // かつ、発射クールタイムが0以下のとき
 	{
@@ -162,6 +174,7 @@ void Enemy::Update()
 		{
 			groupRootId_ = id_;
 			groupTimeLeft_ = GROUP_ANIM_TIME;
+			dropPointX_ = targetPoint_.x;
 		}
 		else  // グループ作成しない場合、撃つ
 		{
@@ -206,7 +219,7 @@ Rect Enemy::GetRect() const
 void Enemy::MoveAt(const Point _position)
 {
 	Point diff{ _position.x - x_, _position.y - y_ };
-	diff /= 1.0f;//10.0f;
+	diff /= 10.0f;
 	x_ += diff.x;
 	y_ += diff.y;
 }
@@ -214,6 +227,13 @@ void Enemy::MoveAt(const Point _position)
 Enemy* Enemy::GetAliveEnemy(const int _id)
 {
 	return enemies_[_id];
+}
+
+void Enemy::SetPlayerPoint(const Point _point)
+{
+	prevPlayerPoint_ = currPlayerPoint_;
+	currPlayerPoint_ = _point;
+	targetPoint_ = currPlayerPoint_ + (currPlayerPoint_ - prevPlayerPoint_);
 }
 
 EnemyBullet* Enemy::GetActiveBullet()
@@ -271,3 +291,6 @@ int Enemy::groupRootId_{ -1 };
 std::vector<Point> Enemy::avoidPoints_{};
 std::vector<EnemyBullet*> Enemy::bullets_{};
 std::vector<Enemy*> Enemy::enemies_{};
+Point Enemy::prevPlayerPoint_{};
+Point Enemy::currPlayerPoint_{};
+Point Enemy::targetPoint_{};
