@@ -1,5 +1,7 @@
 #pragma once
 #include <cmath>
+#include <DxLib.h>
+
 
 enum struct SceneType
 {
@@ -14,10 +16,7 @@ extern SceneType nextScene;
 
 void SceneChange(SceneType next);
 
-static inline float Hart(const float _x, const bool _sign)
-{
-	return (std::powf(_x, 2.0f / 3.0f) + (_sign ? -1 : 1) * std::sqrtf(1.0f - _x * _x));
-}
+float Hart(const float _x, const bool _sign);
 
 struct Point
 {

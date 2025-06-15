@@ -38,18 +38,18 @@ void Title::Draw()
 		TITLE_COLOR,
 		TITLE);
 
-	for (float x = 0; x < 1; x += 0.001f)
+	/*for (float x = 0; x < 1; x += 0.001f)
 	{
 		Point p = GetHartsPoint(x);
 		DrawCircle(
 			p.x, p.y,
 			1, 0xffffff);
-	}
+	}*/
 
 	int x{};
 	GetMousePoint(&x, nullptr);
 
-	Point p = GetHartsPoint(static_cast<float>(x) / Screen::WIN_HEIGHT);
+	Point p = GetHartsPoint(static_cast<float>(x) / Screen::WIN_WIDTH);
 	DrawCircle(
 		p.x, p.y,
 		20, 0x00ff00);
