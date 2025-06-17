@@ -16,6 +16,7 @@ public:
 	void Draw() override;
 
 private:
+	bool isPlayerDown_;
 	Player* player_;
 	std::vector<Enemy*> enemies_;
 	int hImage_;

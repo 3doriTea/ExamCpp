@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "Bullet.h"
 #include "Effector.h"
+#include "Easings.h"
 
 
 namespace
@@ -19,6 +20,7 @@ namespace
 	const int ENEMY_ALIGN_X{ 50 };
 	const int ENEMY_ALIGN_Y{ 50 };
 	const float TO_OVER_TIME_SEC{ 1.5f };  // ゲームオーバーするまでに要する間
+	const int PLAYER_PADDING{ 200 };
 }
 
 Stage::Stage() :
@@ -31,6 +33,7 @@ Stage::Stage() :
 
 
 	player_ = new Player{};
+	Enemy::Reset();
 	enemies_ = std::vector<Enemy*>(ENEMY_COUNT, nullptr);
 
 	const int OFFSET_X = (Screen::WIN_WIDTH - (ENEMY_ALIGN_X * ENEMY_COLUMN_COUNT)) / 2;
@@ -87,18 +90,32 @@ static bool IsHit(const Rect& _a, const Rect& _b)
 
 void Stage::Update()
 {
-	if (onEnemyCount_ <= 0)
+	if (onEnemyCount_ <= 0 || player_->IsBroken())
 	{
 		toOverTimeLeft_ -= Screen::GetDeltaTime();
 		if (toOverTimeLeft_ <= 0)
 		{
-			Enemy::Reset();
 			SceneChange(SceneType::Over);
+
+			if (onEnemyCount_ <= 0)
+			{
+
+			}
+			else if (player_->IsBroken())
+			{
+
+			}
+			else
+			{
+				assert(false && "よくわからない理由でゲームオーバー");
+			}
 		}
 		return;
 	}
 
-	Enemy::SetPlayerPoint(player_->GetRect().GetCenter());
+	Point playerPoint{ player_->GetRect().GetCenter() };
+
+	Enemy::SetPlayerPoint(playerPoint);
 
 	std::vector<Bullet*> pBullets = player_->GetAllBullets();
 	for (auto& pBullet : pBullets)
@@ -120,9 +137,40 @@ void Stage::Update()
 				pEnemy->SetIsAlive(false);
 				pBullet->SetIsFired(false);
 				onEnemyCount_--;
-				new Effector{ {pBullet->GetRect().x, pBullet->GetRect().y} };
+				new Effector{ {pBullet->GetRect().x, pBullet->GetRect().y } };
 				break;
 			}
+		}
+	}
+
+	std::vector<EnemyBullet*> pEnemyBullets = Enemy::GetAllBullets();
+	for (auto& pBullet : pEnemyBullets)
+	{
+		if (!pBullet->IsFire())
+		{
+			continue;
+		}
+
+		if (IsHit(player_->GetRect(), pBullet->GetRect()))
+		{
+			pBullet->SetIsFired(false);
+			player_->TryTakeDamage();
+			if (player_->IsBroken())  // もしダメージを与えて壊れたなら
+			{
+				// 破壊エフェクト
+				for (int i = 0; i < 10; i++)
+				{
+					new Effector
+					{
+						{
+							player_->GetRect().x + GetRand(player_->GetRect().width),
+							player_->GetRect().y + GetRand(player_->GetRect().height)
+						},
+						0.1f * i
+					};
+				}
+			}
+			return;
 		}
 	}
 }
@@ -134,6 +182,22 @@ void Stage::Draw()
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 50);
 	DrawBox(0, 0, Screen::WIN_WIDTH, Screen::WIN_HEIGHT, 0x000000, TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+	float larp = Ease::OutBounce(Larp(TO_OVER_TIME_SEC - toOverTimeLeft_, TO_OVER_TIME_SEC));
+	uint32_t color = 0xffffff;
+
+	float maxLengthY = player_->GetRect().y - PLAYER_PADDING;
+	int y = maxLengthY * larp;
+
+	float maxLengthBeginX = player_->GetRect().x - PLAYER_PADDING;
+	float maxLengthEndX = Screen::WIN_WIDTH - (player_->GetRect().x + player_->GetRect().width + PLAYER_PADDING);
+ 
+	int beginX = maxLengthBeginX * larp;
+	int endX = maxLengthEndX * larp;
+
+	DrawBox(0, 0, Screen::WIN_WIDTH, y, color, TRUE);
+	DrawBox(0, 0, beginX, Screen::WIN_HEIGHT, color, TRUE);
+	DrawBox(Screen::WIN_WIDTH - endX, 0, Screen::WIN_WIDTH, Screen::WIN_HEIGHT, color, TRUE);
 
 	/*player_->Draw();
 	for (auto&& enemy : enemies_)

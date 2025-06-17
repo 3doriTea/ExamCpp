@@ -12,8 +12,11 @@ namespace
 	int IMAGE_HEIGHT{ 48 };
 	static const float BULLET_COOL_TIME_SEC{ 0.1f };
 	static const int BULLET_COUNT{ 5 };  // 弾の数
-	static const int MAKE_GROUP_FRAME_INTERVAL{ 60 * 3 };
+	static const int MAKE_GROUP_FRAME_INTERVAL{ 60 * 10 };
 	static const float GROUP_ANIM_TIME{ 10.0f };
+	static const float GROUP_SPEED{ 300.0f };
+
+	static const int GROUP_ELEMENT_COUNT{ 5 };
 }
 
 Enemy::Enemy(const EnemyType _type, const int _id) :
@@ -43,7 +46,7 @@ Enemy::Enemy(
 	angle2_{ 0.0f },
 	shotCoolTime_{ 0 },
 	parentId_{ -1 },
-	dropPointX_{}
+	isToGoHome_{ false }
 {
 	// 安全のために
 	if (enemies_.size() <= id_)
@@ -63,7 +66,7 @@ Enemy::Enemy(
 	assert(hImage_ > -1  // 画像は正しく読み込めている
 		&& "画像が読み込めていない");
 
-	angle_ = (_id % 16) * ((DX_PI_F * 2.0f) / 16.0f);
+	animAngle_ = (_id % 16) * ((DX_PI_F * 2.0f) / 16.0f);
 
 	if (bullets_.size() == 0)
 	{
@@ -92,21 +95,21 @@ void Enemy::Update()
 	// グルーブのリーダーの処理
 	if (groupRootId_ == id_)
 	{
-		/*int mouseX{}, mouseY{};
-		GetMousePoint(&mouseX, &mouseY);
-		MoveAt({ static_cast<float>(mouseX), static_cast<float>(mouseY) });*/
-
-		float angle = DX_TWO_PI_F * (groupTimeLeft_ / GROUP_ANIM_TIME);
-		float value = std::cosf(angle);
+		animAngle_ = DX_TWO_PI_F * (groupTimeLeft_ / GROUP_ANIM_TIME);
+		float value = std::cosf(animAngle_);
 		
-		/*float x = value * (Screen::WIN_WIDTH / 2) + (Screen::WIN_WIDTH / 2);
-		float y = (Hart(value, false) / 2.5f + 1.0f) * (Screen::WIN_HEIGHT / 30) - 50;*/
-		MoveAt(GetHartsPoint(value / 2.0f + 0.5f) += Point{ static_cast<float>(dropPointX_) - Screen::WIN_WIDTH / 2, 0 });
+		Point toMovePoint = GetHartsPoint(value / 2.0f + 0.5f) += Point{ static_cast<float>(dropPointX_) - Screen::WIN_WIDTH / 2, 0 };
+		MoveAt(toMovePoint, GROUP_SPEED);
 
-		groupTimeLeft_ -= Screen::GetDeltaTime();
+		if (Point::Distance(toMovePoint, { x_, y_ }) <= 1.0f)
+		{
+			groupTimeLeft_ -= Screen::GetDeltaTime();
+		}
+
 		if (groupTimeLeft_ <= 0.0f)
 		{
 			groupRootId_ = -1;
+			isToGoHome_ = true;  // 帰宅！
 		}
 		return;
 	}
@@ -117,15 +120,24 @@ void Enemy::Update()
 		{
 			parentId_ = -1;
 			//printfDx("リーダ死んだ！by%d\n", id_);
+			isToGoHome_ = true;
 			return;
 		}
 		Enemy* pPearent = GetAliveEnemy(parentId_);
 		if (pPearent == nullptr)  // 親が死んだなら解散
 		{
 			parentId_ = -1;
+			isToGoHome_ = true;
 			return;
 		}
-		MoveAt({ static_cast<float>(pPearent->x_), static_cast<float>(pPearent->y_) });
+
+		animAngle_ = std::fmodf(pPearent->animAngle_ - (DX_TWO_PI_F / 360.0f) * 5.0f, DX_TWO_PI_F);
+
+		float value = std::cosf(animAngle_);
+
+		Point toMovePoint = GetHartsPoint(value / 2.0f + 0.5f) += Point{ static_cast<float>(dropPointX_) - Screen::WIN_WIDTH / 2, 0 };
+		MoveAt(toMovePoint, GROUP_SPEED);
+
 		if (shotCoolTime_ <= 0
 			&& GetRect().GetCenter().x - targetPoint_.x <= 3)
 		{
@@ -140,22 +152,36 @@ void Enemy::Update()
 	}
 	// 普通の処理
 
-	angle_ += Screen::GetDeltaTime() * 2.0f;
-	if (angle_ >= DX_PI_F * 2.0f)
+	Point movePoint = GetNormalMovePoint();  // 次の移動先
+	
+	// 帰宅途中
+	if (isToGoHome_)
 	{
-		angle_ -= DX_PI_F * 2.0f;
+		MoveAt(movePoint, GROUP_SPEED);
+		if (Point::Distance({ x_, y_ }, movePoint) < 5.0f)
+		{
+			isToGoHome_ = false;  // 帰宅した！！！
+		}
+		return;
 	}
 
-	y_ = INIT_Y_ + std::sinf(angle_) * 50.0f + offsetY_;
-	x_ = INIT_X_ + (std::sinf(angle_) * 60.0f) + offsetX_;
+	animAngle_ += Screen::GetDeltaTime() * 2.0f;
+	if (animAngle_ >= DX_PI_F * 2.0f)
+	{
+		animAngle_ -= DX_PI_F * 2.0f;
+	}
 
-	margin_ = static_cast<int>(std::sinf(angle_) * 3.0f);
 
-	offsetX_ += Ease::OutElastic(std::fmodf(angle_, DX_PI_F) / DX_PI_F) *
-	(std::sinf(angle_ - (id_ % 16) * ((DX_PI_F * 2.0f) / 16.0f)) > 0.0f
+	y_ = movePoint.x;
+	x_ = movePoint.y;
+
+	margin_ = static_cast<int>(std::sinf(animAngle_) * 3.0f);
+
+	offsetX_ += Ease::OutElastic(std::fmodf(animAngle_, DX_PI_F) / DX_PI_F) *
+	(std::sinf(animAngle_ - (id_ % 16) * ((DX_PI_F * 2.0f) / 16.0f)) > 0.0f
 		? 4.0f
 		: -4.0f);
-	float downMove{ std::sinf(angle_) };
+	float downMove{ std::sinf(animAngle_) };
 	downMove *= downMove < 0 ? 0.01f : 0.1f;
 	offsetY_ += downMove;
 
@@ -170,7 +196,7 @@ void Enemy::Update()
 
 		if (groupRootId_ == -1  // 現在のグループができていない
 			&& toGroupCurr <= 0  // かつ、グループ作成カウントダウンタイマもどきが0以下なら、グループ作成する
-			&& BringEnemyFrom(id_, 3) == true) // かつ、自分中心にn体集めて成功
+			&& BringEnemyFrom(id_, GROUP_ELEMENT_COUNT) == true) // かつ、自分中心にn体集めて成功
 		{
 			groupRootId_ = id_;
 			groupTimeLeft_ = GROUP_ANIM_TIME;
@@ -188,9 +214,9 @@ void Enemy::Update()
 	}
 	if (groupRootId_ == -1)
 	{
-		shotCurr--;     // 現在グループができていないなら、各生きている敵が順番に減らしていく
+		toGroupCurr--;  // 各生きている敵が順番に減らしていく
 	}
-	toGroupCurr--;  // 各生きている敵が順番に減らしていく
+	shotCurr--;     // 現在グループができていないなら、各生きている敵が順番に減らしていく
 }
 
 void Enemy::Draw()
@@ -216,12 +242,19 @@ Rect Enemy::GetRect() const
 	return { x_, y_, (float)IMAGE_WIDTH, (float)IMAGE_HEIGHT };
 }
 
-void Enemy::MoveAt(const Point _position)
+void Enemy::MoveAt(const Point _position, const float _speed)
 {
 	Point diff{ _position.x - x_, _position.y - y_ };
-	diff /= 10.0f;
-	x_ += diff.x;
-	y_ += diff.y;
+	if (diff.Size() <= (_speed * Screen::GetDeltaTime()))  // 距離がスピードの範囲内なら
+	{
+		x_ = _position.x;
+		y_ = _position.y;
+		return;
+	}
+	Point unitV = Point::Norm(diff);
+	unitV *= (_speed * Screen::GetDeltaTime());
+	x_ += unitV.x;
+	y_ += unitV.y;
 }
 
 Enemy* Enemy::GetAliveEnemy(const int _id)
@@ -238,6 +271,7 @@ void Enemy::SetPlayerPoint(const Point _point)
 
 EnemyBullet* Enemy::GetActiveBullet()
 {
+	return nullptr;
 	for (int i = 0; i < BULLET_COUNT; i++)
 	{
 		if (bullets_[i]->IsFire() == false)
@@ -288,6 +322,7 @@ bool Enemy::BringEnemyFrom(const int _parentId, const int _countMax)
 
 float Enemy::groupTimeLeft_{ 0.0f };
 int Enemy::groupRootId_{ -1 };
+int Enemy::dropPointX_{ 0 };
 std::vector<Point> Enemy::avoidPoints_{};
 std::vector<EnemyBullet*> Enemy::bullets_{};
 std::vector<Enemy*> Enemy::enemies_{};

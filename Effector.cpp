@@ -16,9 +16,9 @@ namespace
 	static const char* EFFECT_IMAGE_FILE_NAME{ "Assets/explosion.png" };
 }
 
-Effector::Effector(const Point& _point) :
+Effector::Effector(const Point& _point, const float _timeOffset) :
 	position_{ _point },
-	timeLeft_{ EFFECT_TIME },
+	timeLeft_{ EFFECT_TIME + _timeOffset },
 	radius_{ 30 }
 {
 	if (hImage_ == -1)
@@ -42,6 +42,11 @@ void Effector::Update()
 
 void Effector::Draw()
 {
+	if (timeLeft_ < 0 || EFFECT_TIME < timeLeft_)
+	{
+		return;  // タイムがエフェクトタイム外なら回帰
+	}
+
 	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 200);
 	SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 

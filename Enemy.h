@@ -39,7 +39,7 @@ public:
 
 	Rect GetRect() const;
 
-	void MoveAt(const Point _position);
+	void MoveAt(const Point _position, const float _speed);
 
 	/// <summary>
 	/// 
@@ -53,6 +53,10 @@ public:
 
 	static std::vector<Point> avoidPoints_;
 	static EnemyBullet* GetActiveBullet();
+	static inline std::vector<EnemyBullet*> GetAllBullets()
+	{
+		return bullets_;
+	}
 
 	/// <summary>
 	/// 突撃部隊に参加してくれる勇気ある機体を募る
@@ -72,6 +76,15 @@ public:
 	};
 
 private:
+	Point GetNormalMovePoint()
+	{
+		return
+		{
+			INIT_Y_ + std::sinf(animAngle_) * 50.0f + offsetY_,
+			INIT_X_ + (std::sinf(animAngle_) * 60.0f) + offsetX_,
+		};
+	}
+
 	int id_;  // 識別子
 	int hImage_;
 	int parentId_;
@@ -80,20 +93,22 @@ private:
 	const float INIT_Y_;
 	float x_;
 	float y_;
+	float animAngle_;  // アニメーション時の角度
 	float speed_;
 	int margin_;  // 余白
 	float offsetX_;
 	float offsetY_;
 	float shotCoolTime_;
 
-	int dropPointX_;  // 降下攻撃のx座標
+	bool isToGoHome_;  // 家に帰っている
+
+	static int dropPointX_;  // 降下攻撃のx座標
 
 	Point imageSize_;
 
 	EnemyType type_;
 
 	static float groupTimeLeft_;
-	float angle_;
 	float angle2_;
 	static int groupRootId_;  // グルーブの一番親のid
 	static std::vector<Enemy*> enemies_;

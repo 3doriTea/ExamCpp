@@ -4,7 +4,7 @@
 class Effector : public GameObject
 {
 public:
-	Effector(const Point& _point);
+	Effector(const Point& _point, const float _timeOffset = 0.0f);
 	~Effector();
 
 	void Update() override;
