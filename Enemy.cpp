@@ -271,7 +271,6 @@ void Enemy::SetPlayerPoint(const Point _point)
 
 EnemyBullet* Enemy::GetActiveBullet()
 {
-	return nullptr;
 	for (int i = 0; i < BULLET_COUNT; i++)
 	{
 		if (bullets_[i]->IsFire() == false)
