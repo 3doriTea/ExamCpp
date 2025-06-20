@@ -5,6 +5,8 @@
 #include "Screen.h"
 #include "Easings.h"
 
+//#define USE_BULLET
+
 
 namespace
 {
@@ -271,6 +273,9 @@ void Enemy::SetPlayerPoint(const Point _point)
 
 EnemyBullet* Enemy::GetActiveBullet()
 {
+#ifdef USE_BULLET
+	return nullptr;
+#endif
 	for (int i = 0; i < BULLET_COUNT; i++)
 	{
 		if (bullets_[i]->IsFire() == false)
